@@ -1,0 +1,21 @@
+@startuml
+title Visitor Pattern - Inspection Process
+
+actor User
+participant Demo
+participant Directory
+participant ProjectVisitor
+participant SecurityAuditVisitor
+participant SourceCodeFile
+
+User -> Demo: main()
+Demo -> Directory: sampleProject()
+Demo -> SecurityAuditVisitor: create visitor
+Demo -> Directory: accept(visitor)
+Directory -> SourceCodeFile: accept(visitor)
+SourceCodeFile -> SecurityAuditVisitor: visit(this)
+SecurityAuditVisitor --> SourceCodeFile: inspection result
+Directory --> Demo: inspection completed
+Demo --> User: display security report
+
+@enduml
