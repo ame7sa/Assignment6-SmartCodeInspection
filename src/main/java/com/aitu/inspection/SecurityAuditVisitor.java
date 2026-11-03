@@ -1,13 +1,68 @@
 package com.aitu.inspection;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class SecurityAuditVisitor implements ProjectVisitor {
-    private final List<String> issues=new ArrayList<>();
-    public List<String> getIssues(){return Collections.unmodifiableList(issues);}
-    public int getScore(){return Math.max(0,100-issues.size()*20);}
-    public String report(){return "Security score: "+getScore()+"/100\\nIssues: "+issues;}
-    public void visit(SourceCodeFile f){if(f.hasHardcodedCredentials())issues.add(f.getName()+": hardcoded credentials");if(f.isHighRisk())issues.add(f.getName()+": high-risk source file");}
-    public void visit(TestFile f){}
-    public void visit(ConfigurationFile f){if(f.isInsecure())issues.add(f.getName()+": insecure configuration");if(f.hasExposedCredentials())issues.add(f.getName()+": exposed credentials");}
-    public void visit(DependencyFile f){if(f.hasVulnerableDependencies())issues.add(f.getName()+": vulnerable dependency");}
-    public void visit(Directory d){d.getChildren().forEach(e->e.accept(this));}
+
+    private final List<String> issues = new ArrayList<>();
+    private int score = 100;
+
+    public int getScore() {
+        return Math.max(0, score);
+    }
+
+    public List<String> getIssues() {
+        return issues;
+    }
+
+    public boolean isPassed() {
+        return getScore() >= 70;
+    }
+
+    @Override
+    public void visit(SourceCodeFile file) {
+        if (file.hasHardcodedCredentials()) {
+            issues.add(file.getName() + ": hardcoded credentials");
+            score -= 40;
+        }
+
+        if (file.isHighRisk()) {
+            issues.add(file.getName() + ": high-risk source file");
+            score -= 20;
+        }
+    }
+
+    @Override
+    public void visit(TestFile file) {
+        // No security checks for test files.
+    }
+
+    @Override
+    public void visit(ConfigurationFile file) {
+        if (file.isInsecure()) {
+            issues.add(file.getName() + ": insecure configuration");
+            score -= 20;
+        }
+    }
+
+    @Override
+    public void visit(DependencyFile file) {
+        if (file.hasVulnerableDependencies()) {
+            issues.add(file.getName() + ": vulnerable dependency");
+            score -= 20;
+        }
+    }
+
+    @Override
+    public void visit(Directory directory) {
+        for (ProjectElement element : directory.getChildren()) {
+            element.accept(this);
+        }
+    }
+
+    public String report() {
+        return "Security score: " + getScore() + "/100\n"
+                + "Issues: " + issues;
+    }
 }

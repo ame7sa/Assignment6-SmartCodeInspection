@@ -61,11 +61,11 @@ public class Demo {
         System.out.println("Dependencies: " + stats.getDependencies());
 
         // 3. Quality Gate Visitor
-        QualityGateVisitor gate = new QualityGateVisitor();
-        project.accept(gate);
+     QualityGateVisitor qualityGate = new QualityGateVisitor(10, 0.4);
+project.accept(qualityGate);
 
-        System.out.println("\n=== QUALITY GATE ===");
-        System.out.println(gate.report());
+System.out.println("\n=== QUALITY GATE ===");
+System.out.println(qualityGate.report());
 
         // 4. Compliance Visitor
         ComplianceVisitor compliance = new ComplianceVisitor();
